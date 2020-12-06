@@ -1,4 +1,4 @@
-//! To any std::io::Read implementor, add also `Iterator<Item=u8>` implementation.
+//! To any `std::io::Read` implementor, add also `Iterator<Item=u8>` implementation.
 //!
 //! # Installation
 //!
@@ -20,7 +20,7 @@
 //! let mut it = ReadIter::new(file);
 //! // now "it" also implements std::io::Read
 //! // and "&mut it" implements Iterator<Item=u8>
-//! // "it" has internal buffer, so no need for std::io::BufReader
+//! // also "it" has internal buffer, and implements std::io::BufRead
 //! for byte in &mut it
 //! {	// ...
 //! }
@@ -101,6 +101,27 @@ impl<T> io::Read for ReadIter<T> where T: io::Read
 		else
 		{	self.reader.read(buf)
 		}
+	}
+}
+
+impl<T> io::BufRead for ReadIter<T> where T: io::Read
+{	fn fill_buf(&mut self) -> Result<&[u8], io::Error>
+	{	if self.i >= self.len
+		{	match self.reader.read(&mut self.buffer)
+			{	Err(err) =>
+				{	return Err(err);
+				}
+				Ok(n) =>
+				{	self.len = n;
+					self.i = 0;
+				}
+			}
+		}
+		Ok(&self.buffer[self.i .. self.i+self.len])
+	}
+
+	fn consume(&mut self, amt: usize)
+	{	self.i += amt;
 	}
 }
 
