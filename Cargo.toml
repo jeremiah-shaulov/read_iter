@@ -1,0 +1,12 @@
+[package]
+name = "read_iter"
+version = "0.1.0"
+authors = ["Jeremiah Shaulov <jeremiah.shaulov@gmail.com>"]
+edition = "2018"
+license = "MIT"
+readme = "README.md"
+description = "Rust: to any std::io::Read implementor, add also Iterator&lt;Item=u8> implementation"
+repository = "https://github.com/jeremiah-shaulov/read_iter"
+keywords = ["read", "adapter"]
+
+[dependencies]
