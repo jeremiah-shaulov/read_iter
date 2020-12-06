@@ -24,6 +24,7 @@
 //! for byte in &mut it
 //! {	// ...
 //! }
+//! // in case of i/o error, the iteration ends, and take_last_error() will return Err
 //! it.take_last_error().unwrap();
 //! ```
 
@@ -31,6 +32,8 @@ use std::{io, cmp};
 
 const BUFFER_SIZE: usize = 4*1024;
 
+/// Object that wraps `std::io::Read`, and also implements `std::io::Read`.
+/// It also implements `std::io::BufRead` and `Iterator<Item=u8>`.
 pub struct ReadIter<T> where T: io::Read
 {	reader: T,
 	err: Option<io::Error>,
@@ -50,10 +53,22 @@ impl<T> ReadIter<T> where T: io::Read
 		}
 	}
 
+	/// Iteration can end in 2 cases:
+	///
+	/// - end of stream reached
+	/// - i/o error occured
+	///
+	/// If there was error, this function returns &Some(err).
 	pub fn last_error(&self) -> &Option<io::Error>
 	{	&self.err
 	}
 
+	/// Iteration can end in 2 cases:
+	///
+	/// - end of stream reached
+	/// - i/o error occured
+	///
+	/// If there was error, this function returns Err(err), and clears the error state.
 	pub fn take_last_error(&mut self) -> Result<(), io::Error>
 	{	match self.err.take()
 		{	Some(err) => Err(err),

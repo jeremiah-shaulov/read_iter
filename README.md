@@ -28,5 +28,6 @@ let mut it = ReadIter::new(file);
 for byte in &mut it
 {	// ...
 }
+// in case of i/o error, the iteration ends, and take_last_error() will return Err
 it.take_last_error().unwrap();
 ```
